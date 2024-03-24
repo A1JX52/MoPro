@@ -65,6 +65,10 @@
                     let thema = document.title
                     let text = $("#text").val();
 
+                    if (!nutzer || !text) {
+                        alert("Füllen Sie alle Felder aus!");
+                        return;
+                    }
                     $.ajax({
                         type: 'POST',
                         url: 'insert.php',
