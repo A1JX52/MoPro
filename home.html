@@ -69,6 +69,25 @@
                     let thema = $("#thema").val();
                     let text = $("#text").val();
 
+                    if (!nutzer || !thema || !text) {
+                        alert("Füllen Sie alle Felder aus!");
+                        return;
+                    }
+                    let omitInsert = false;
+
+                    $("#lvTopics li").each(function() {
+                        if ($(this).text().startsWith(thema)) {
+                            omitInsert = true;
+                            return;
+                        }
+                    });
+
+                    if (omitInsert) {
+                        alert("Thema bereits vergeben!");
+                        $("#thema").val("");
+                        return;
+                    }
+
                     $.ajax({
                         type: 'POST',
                         url: 'insert.php',
