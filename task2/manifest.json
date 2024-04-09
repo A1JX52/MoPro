@@ -1,0 +1,16 @@
+{
+  "name": "groceries store",
+  "short_name": "gs",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#104000",
+  "description": "get to know what's available and what's not",
+  "theme_color": "#104000",
+  "icons": [
+    {
+      "src": "./img/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
