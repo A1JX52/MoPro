@@ -1,0 +1,111 @@
+<html lang="de">
+<head>
+    <meta charset="utf-8"/>
+    <title>Forum</title>
+
+    <link href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+<body>
+<div data-role="page" id="home">
+    <div data-role="header">
+        <h1>Übersicht der Themen</h1>
+    </div>
+    <div data-role="content">
+        <form class="ui-filterable" onsubmit="return false;">
+            <input id="filterTopics" data-type="search" placeholder="Themen durchsuchen..">
+        </form>
+
+        <ol data-role="listview" id="lvTopics" data-count-theme="true"></ol>
+        <script>
+            function update() {
+                $.ajax({
+                    type: 'GET',
+                    url: 'retrieveTopics.php',
+                    dataType: 'json',
+                    success: [function(data) {
+                        let lvTopics = $('#lvTopics');
+                        lvTopics.empty();
+
+                        $.each(data, function (index, item) {
+                            let url = 'topic.html?topic=' + encodeURIComponent(item.thema);
+                            lvTopics.append('<li><a href="' + url + '" rel="external">' + item.thema + '<span class="ui-li-count">' + item.anzahl + '</span></a></li>');
+                        })
+                        lvTopics.listview('refresh');
+                        lvTopics.trigger('updatelayout');
+                    }]
+                });
+            }
+
+            $(document).ready(function() {
+                update();
+
+                $('#filterTopics').on('keyup', function() {
+                    let val = $(this).val().toLowerCase();
+
+                    $('#lvTopics li').filter(function() {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(val) > -1);
+                    });
+                });
+            });
+        </script>
+        <br>
+
+        <h3>Thema hinzufügen:</h3>
+        <form id="formTopics" onsubmit="return false;">
+            <label for="nutzer">Nutzer</label>
+            <input type="text" id="nutzer">
+            <label for="thema">Thema</label>
+            <input type="text" id="thema">
+            <label for="text">Text</label>
+            <input type="text" id="text">
+            <button type="submit" id="btn">Beitrag erstellen</button>
+        </form>
+        <script>
+            $(document).ready(function() {
+                $("#btn").click(function() {
+                    let nutzer = $("#nutzer").val();
+                    let thema = $("#thema").val();
+                    let text = $("#text").val();
+
+                    if (!nutzer || !thema || !text) {
+                        alert("Füllen Sie alle Felder aus!");
+                        return;
+                    }
+                    let omitInsert = false;
+
+                    $("#lvTopics li").each(function() {
+                        if ($(this).text().startsWith(thema)) {
+                            omitInsert = true;
+                            return;
+                        }
+                    });
+
+                    if (omitInsert) {
+                        alert("Thema bereits vergeben!");
+                        $("#thema").val("");
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: 'insert.php',
+                        data: {
+                            'nutzer': nutzer,
+                            'thema': thema,
+                            'text': text
+                        },
+                        success: [function(data){
+                            $('#formTopics')[0].reset();
+                            update();
+                        }]
+                    });
+                });
+            });
+        </script>
+    </div>
+    <div data-role="footer" data-position="fixed"></div>
+</div>
+</body>
+</html>
